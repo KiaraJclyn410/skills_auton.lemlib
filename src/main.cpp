@@ -3,8 +3,8 @@
 #include "lemlib/chassis/trackingWheel.hpp"
 #include <cstdio>
 
-pros::MotorGroup left_motors({11, -12, -13}, pros::MotorGearset::blue); // left motors on ports 1, 2, 3
-pros::MotorGroup right_motors({-9, 10, 18}, pros::MotorGearset::blue); // right motors on ports 4, 5, 6
+pros::MotorGroup left_motors({11, -12, -13}, pros::MotorGearset::blue); // left motors on ports 1, 2, 3 //11BAD*fixed, -12*, -13
+pros::MotorGroup right_motors({-9, 10, 18}, pros::MotorGearset::blue); // right motors on ports 4, 5, 6 //-9*, 10*, 18
 pros::Controller master(pros::E_CONTROLLER_MASTER);
 
 // drivetrain settings
@@ -29,15 +29,15 @@ lemlib::OdomSensors sensors(nullptr, // vertical tracking wheel 1, set to null
 );
 
 // lateral PID controller
-lemlib::ControllerSettings lateral_controller(7, // proportional gain (kP)
-                                              0, // integral gain (kI)
-                                              70, // derivative gain (kD)
-                                              0, // anti windup
+lemlib::ControllerSettings lateral_controller(11, // proportional gain (kP)
+                                              0.75, // integral gain (kI)
+                                              120, // derivative gain (kD)
+                                              1.5, // anti windup
                                               0, // small error range, in inches
                                               0, // small error range timeout, in milliseconds
                                               0, // large error range, in inches
                                               0, // large error range timeout, in milliseconds
-                                              0 // maximum acceleration (slew)
+                                              49 // maximum acceleration (slew)
 );
 
 // angular PID controller
@@ -143,10 +143,10 @@ void competition_initialize() {}
  * from where it left off.
  */
 void autonomous() {
-    // set position to x:0, y:0, heading:0
+     // set position to x:0, y:0, heading:0
     chassis.setPose(0, 0, 0);
-    // turn to face heading 90 with a very long timeout
-    chassis.moveToPoint(0, 24, 8000);
+    // move 48" forwards
+    chassis.moveToPoint(0, 48, 10000);
 }
 
 /**
