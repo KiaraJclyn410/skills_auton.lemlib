@@ -29,9 +29,9 @@ lemlib::OdomSensors sensors(nullptr, // vertical tracking wheel 1, set to null
 );
 
 // lateral PID controller
-lemlib::ControllerSettings lateral_controller(11, // proportional gain (kP)
-                                              0.75, // integral gain (kI)
-                                              120, // derivative gain (kD)
+lemlib::ControllerSettings lateral_controller(11.60, // proportional gain (kP)
+                                              0.5, // integral gain (kI)
+                                              155, // derivative gain (kD)
                                               1.5, // anti windup
                                               0, // small error range, in inches
                                               0, // small error range timeout, in milliseconds
@@ -146,7 +146,7 @@ void autonomous() {
      // set position to x:0, y:0, heading:0
     chassis.setPose(0, 0, 0);
     // move 48" forwards
-    chassis.moveToPoint(0, 48, 10000);
+    chassis.moveToPoint(0, 24, 10000);
 }
 
 /**
