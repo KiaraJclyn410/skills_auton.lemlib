@@ -1,9 +1,11 @@
 #include "main.h"
 #include "lemlib/api.hpp" // IWYU pragma: keep
 #include "lemlib/chassis/trackingWheel.hpp"
+#include <cstdio>
 
 pros::MotorGroup left_motors({11, -12, -13}, pros::MotorGearset::blue); // left motors on ports 1, 2, 3
 pros::MotorGroup right_motors({-9, 10, 18}, pros::MotorGearset::blue); // right motors on ports 4, 5, 6
+pros::Controller master(pros::E_CONTROLLER_MASTER);
 
 // drivetrain settings
 lemlib::Drivetrain drivetrain(&left_motors, // left motor group
@@ -99,14 +101,15 @@ void initialize() {
     chassis.calibrate(); // calibrate sensors
     // print position to brain screen
     pros::Task screen_task([&]() {
-        while (true) {
-            // print robot location to the brain screen
-            pros::lcd::print(0, "X: %f", chassis.getPose().x); // x
-            pros::lcd::print(1, "Y: %f", chassis.getPose().y); // y
-            pros::lcd::print(2, "Theta: %f", chassis.getPose().theta); // heading
-            // delay to save resources
-            pros::delay(20);
-        }
+        master.clear();
+    while (true) {
+        const auto pose = chassis.getPose();
+
+        master.print(0, 0, "(%.2f, %.2f, %.2f)", pose.x, pose.y, pose.theta);
+        pros::delay(100);
+
+ 
+    }
     });
 }
 
