@@ -1,11 +1,14 @@
 #include "main.h"
 #include "lemlib/api.hpp" // IWYU pragma: keep
 #include "lemlib/chassis/trackingWheel.hpp"
+#include "pros/motors.hpp"
 #include <cstdio>
 
 pros::MotorGroup left_motors({11, -12, -13}, pros::MotorGearset::blue); // left motors on ports 1, 2, 3 //11BAD*fixed, -12*, -13
 pros::MotorGroup right_motors({-9, 10, 18}, pros::MotorGearset::blue); // right motors on ports 4, 5, 6 //-9*, 10*, 18
 pros::Controller master(pros::E_CONTROLLER_MASTER);
+pros::adi::DigitalOut hood_pneu ('A');
+pros::adi::DigitalOut matchload_pneu ('E');
 
 // drivetrain settings
 lemlib::Drivetrain drivetrain(&left_motors, // left motor group
@@ -33,10 +36,10 @@ lemlib::ControllerSettings lateral_controller(10, // proportional gain (kP)
                                               0.2, // integral gain (kI)
                                               100, // derivative gain (kD)
                                               0.9, // anti windup
-                                              0, // small error range, in inches
-                                              0, // small error range timeout, in milliseconds
-                                              0, // large error range, in inches
-                                              0, // large error range timeout, in milliseconds
+                                              0.1, // small error range, in inches
+                                              100, // small error range timeout, in milliseconds
+                                              2, // large error range, in inches
+                                              600, // large error range timeout, in milliseconds
                                               0 // maximum acceleration (slew)
 );
 
@@ -110,7 +113,8 @@ void initialize() {
 		double rightTemp = right_motors.get_temperature(); 
 		master.print(0, 0, "L: %.1fC", leftTemp); 
         pros::delay(100);
-
+		
+		
  
     }
     });
@@ -149,7 +153,8 @@ void autonomous() {
      // set position to x:0, y:0, heading:0
     chassis.setPose(0, 0, 0);
     // move 48" forwards
-    chassis.moveToPoint(0, 48, 50000);
+    chassis.moveToPoint(0, 48, 7000);
+	chassis.turnToHeading(90, 7000);
 }
 
 /**
@@ -176,6 +181,19 @@ void opcontrol() {
 
         // move the robot
         chassis.arcade(leftY, rightX, false, 0.75);
+		 if (master.get_digital(DIGITAL_B)) {
+            hood_pneu.set_value(true);
+        } else if (master.get_digital(DIGITAL_X)) {
+            hood_pneu.set_value(false);
+        }
+
+        if (master.get_digital(DIGITAL_DOWN)) {
+            matchload_pneu.set_value(true);
+            hood_pneu.set_value(true);
+        } else if (master.get_digital(DIGITAL_UP)) {
+            matchload_pneu.set_value(false);
+    
+        }
 
         // delay to save resources
         pros::delay(25);
