@@ -41,7 +41,7 @@ lemlib::ControllerSettings lateral_controller(10, // proportional gain (kP)
                                               0.9, // anti windup
                                               0.1, // small error range, in inches
                                               100, // small error range timeout, in milliseconds
-                                              2, // large error range, in inches
+                                              0.6, // large error range, in inches
                                               600, // large error range timeout, in milliseconds
                                               0 // maximum acceleration (slew)
 );
@@ -177,21 +177,38 @@ void autonomous() {
 	//swerve into alley
 	chassis.moveToPose(61, -32, 180, 2000, {.forwards = false});
 	//long move
-	chassis.moveToPoint(61, 39, 7000, {.forwards = false});
+	chassis.moveToPoint(60.7, 39, 7000, {.forwards = false});
 
 	chassis.turnToHeading(270, 7000);
 	//drive in line with the goal
 	chassis.moveToPoint(48, 39, 7000);
 
 	chassis.turnToHeading(0, 7000);
-
+	//back into goal
 	chassis.moveToPose(48, 24, 0, 7000, {.forwards = false});
 	pros::delay(3000);
-	//pose reset
-	chassis.setPose(48, 24, 0);
-	chassis.moveToPoint(48, 50, 7000);
-}
+	//pose reset on goal
+	chassis.setPose(48, 31, 0);
+	//go to matchloader
+	chassis.moveToPoint(48, 58, 7000);
+	pros::delay(2000);
+	//back into goal
+	chassis.moveToPose(48, 24, 0, 7000, {.forwards = false});
+	pros::delay(3000);
+	//pose reset on goal
+	chassis.setPose(48, 31, 0);
 
+	//drive forward from goal
+	chassis.moveToPoint(48, 40, 7000);
+
+	//turn & drive to the other side
+	chassis.turnToHeading(270, 7000);
+	chassis.moveToPoint(-53, 40, 7000);
+
+	//turn in line with goal
+	chassis.turnToHeading(0, 7000);
+	chassis.moveToPose(-53, 24, 0, 7000, {.forwards = false});
+}
 /**
  * Runs the operator control code. This function will be started in its own task
  * with the default priority and stack size whenever the robot is enabled via
