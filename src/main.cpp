@@ -3,6 +3,7 @@
 #include "lemlib/chassis/trackingWheel.hpp"
 #include "pros/motors.hpp"
 #include <cstdio>
+#include <utility>
 
 pros::MotorGroup left_motors({11, -12, -13}, pros::MotorGearset::blue); // left motors on ports 1, 2, 3 //11BAD*fixed, -12*, -13
 pros::MotorGroup right_motors({-9, 10, 18}, pros::MotorGearset::blue); // right motors on ports 4, 5, 6 //-9*, 10*, 18
@@ -158,22 +159,37 @@ static void start_intake(){
 void autonomous() {
      // set position to x:0, y:0, heading:0
 	 //set to start
-    chassis.setPose(0, 0, 0);
+    chassis.setPose(14, -47, 90);
     // drive to face matchload
-    chassis.moveToPoint(0, 34, 7000);
-	chassis.turnToHeading(90, 7000);
-	pros::delay(200);
+    chassis.moveToPoint(48, -47, 7000);
+	chassis.turnToHeading(180, 7000);
 	//drop matchload pneumatic
 	matchload_pneu.set_value(true);
 	start_intake();
-	pros::delay(500);
-	//to pneumatic
-	chassis.moveToPoint(9, 34, 2000);
+	//to matchloader
+	chassis.moveToPoint(49, -54, 7000);
 	pros::delay(2000);
-	//back up
-	chassis.moveToPoint(0, 34, 7000);
-	//turn
-	chassis.turnToHeading(180, 7000);
+	chassis.setPose(48, -54, 180);
+	
+	chassis.moveToPoint(48, -47, 7000, {.forwards = false});
+	// //turn
+	chassis.turnToHeading(225, 7000);
+	//swerve into alley
+	chassis.moveToPose(61, -32, 180, 2000, {.forwards = false});
+	//long move
+	chassis.moveToPoint(61, 39, 7000, {.forwards = false});
+
+	chassis.turnToHeading(270, 7000);
+	//drive in line with the goal
+	chassis.moveToPoint(48, 39, 7000);
+
+	chassis.turnToHeading(0, 7000);
+
+	chassis.moveToPose(48, 24, 0, 7000, {.forwards = false});
+	pros::delay(3000);
+	//pose reset
+	chassis.setPose(48, 24, 0);
+	chassis.moveToPoint(48, 50, 7000);
 }
 
 /**
