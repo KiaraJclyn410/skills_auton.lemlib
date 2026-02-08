@@ -1,6 +1,7 @@
 #include "main.h"
 #include "lemlib/api.hpp" // IWYU pragma: keep
 #include "lemlib/chassis/trackingWheel.hpp"
+#include "pros/gps.h"
 #include "pros/motors.hpp"
 #include <cstdio>
 #include <utility>
@@ -156,38 +157,50 @@ void competition_initialize() {}
 static void start_intake(){
 	intake.move_velocity(-600);
 }
+static void stop_intake(){
+	intake.move_velocity(0);
+}
+static void start_outtake(){
+	outtake.move_velocity(-600);
+}
+static void stop_outtake(){
+	outtake.move_velocity(0);
+}
 void autonomous() {
      // set position to x:0, y:0, heading:0
 	 //set to start
     chassis.setPose(14, -47, 90);
     // drive to face matchload
-    chassis.moveToPoint(48, -47, 7000);
-	chassis.turnToHeading(180, 7000);
+    chassis.moveToPoint(48, -47, 1000);
+	chassis.turnToHeading(180, 1000);
 	//drop matchload pneumatic
 	matchload_pneu.set_value(true);
 	start_intake();
 	//to matchloader
-	chassis.moveToPoint(49, -54, 7000);
+	chassis.moveToPoint(50, -56, 1000);
 	pros::delay(2000);
-	chassis.setPose(48, -54, 180);
+	chassis.setPose(48, -55, 180);
 	
-	chassis.moveToPoint(48, -47, 7000, {.forwards = false});
+	chassis.moveToPoint(48, -47, 1000, {.forwards = false});
 	// //turn
 	chassis.turnToHeading(225, 7000);
+	stop_intake();
 	//swerve into alley
-	chassis.moveToPose(61, -32, 180, 2000, {.forwards = false});
+	chassis.moveToPose(60, -32, 180, 2000, {.forwards = false});
 	//long move
-	chassis.moveToPoint(60.7, 39, 7000, {.forwards = false});
+	chassis.moveToPoint(60, 39, 7000, {.forwards = false});
 
-	chassis.turnToHeading(270, 7000);
+	chassis.turnToHeading(270, 1000);
 	//drive in line with the goal
-	chassis.moveToPoint(48, 39, 7000);
+	chassis.moveToPoint(48, 39, 1000);
 
-	chassis.turnToHeading(0, 7000);
+	chassis.turnToHeading(0, 1000);
 	//back into goal
-	chassis.moveToPose(48, 24, 0, 7000, {.forwards = false});
+	chassis.moveToPose(48, 24, 0, 1000, {.forwards = false});
+	start_outtake();
 	pros::delay(3000);
 	//pose reset on goal
+	stop_outtake();
 	chassis.setPose(48, 31, 0);
 	//go to matchloader
 	chassis.moveToPoint(48, 58, 7000);
@@ -196,18 +209,24 @@ void autonomous() {
 	chassis.moveToPose(48, 24, 0, 7000, {.forwards = false});
 	pros::delay(3000);
 	//pose reset on goal
-	chassis.setPose(48, 31, 0);
+	chassis.setPose(47, 31, 0);
 
 	//drive forward from goal
 	chassis.moveToPoint(48, 40, 7000);
 
-	//turn & drive to the other side
+	//turn & drive to the other side in lne with goal
 	chassis.turnToHeading(270, 7000);
-	chassis.moveToPoint(-53, 40, 7000);
+	chassis.moveToPoint(-48, 40, 7000);
 
-	//turn in line with goal
+	//turn to matchloader
 	chassis.turnToHeading(0, 7000);
-	chassis.moveToPose(-53, 24, 0, 7000, {.forwards = false});
+	//go to matchloader
+	chassis.moveToPoint(-48, 54,7000);
+	pros::delay(2000);
+
+	chassis.moveToPose(-48, 24, 0, 7000, {.forwards = false});
+	pros::delay(200);
+	chassis.setPose(-48, 31, 0);
 }
 /**
  * Runs the operator control code. This function will be started in its own task
