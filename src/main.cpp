@@ -187,8 +187,8 @@ void autonomous() {
 	start_intake();
     backspin_outtake();
 	//to matchloader
-	chassis.moveToPoint(50, -57, 1000);
-	pros::delay(2000);
+	chassis.moveToPoint(50, -57.6, 1000);
+	pros::delay(2500);
     //pose reset on matchloader
 	chassis.setPose(48, -55, (imu.get_heading() + 90));
 	
@@ -221,9 +221,9 @@ void autonomous() {
     hood_pneu.set_value(false);
 	chassis.setPose(47, 31, 0);
 	//go to matchloader
-	chassis.moveToPoint(47, 61, 7000);
+	chassis.moveToPoint(47, 60.2, 7000);
     start_intake();
-	pros::delay(2000);
+	pros::delay(2500);
 	//back into goal
 	chassis.moveToPose(47, 23.5, 0, 7000, {.forwards = false});
     start_intake();
