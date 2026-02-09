@@ -2,6 +2,7 @@
 #include "lemlib/api.hpp" // IWYU pragma: keep
 #include "lemlib/chassis/trackingWheel.hpp"
 #include "pros/gps.h"
+#include "pros/misc.h"
 #include "pros/motors.hpp"
 #include <cstdio>
 #include <utility>
@@ -42,7 +43,7 @@ lemlib::ControllerSettings lateral_controller(10, // proportional gain (kP)
                                               0.9, // anti windup
                                               0.1, // small error range, in inches
                                               100, // small error range timeout, in milliseconds
-                                              0.6, // large error range, in inches
+                                              0.5, // large error range, in inches
                                               600, // large error range timeout, in milliseconds
                                               0 // maximum acceleration (slew)
 );
@@ -166,50 +167,81 @@ static void start_outtake(){
 static void stop_outtake(){
 	outtake.move_velocity(0);
 }
+
+static void backspin_outtake(){
+    outtake.move_velocity(200);
+}
+ static void backspin_intake(){
+    intake.move_velocity(-600);
+}
+
 void autonomous() {
      // set position to x:0, y:0, heading:0
 	 //set to start
-    chassis.setPose(14, -47, 90);
+    chassis.setPose(14.5, -47, 90);
     // drive to face matchload
     chassis.moveToPoint(48, -47, 1000);
-	chassis.turnToHeading(180, 1000);
+	chassis.turnToHeading(180, 1200);
 	//drop matchload pneumatic
 	matchload_pneu.set_value(true);
 	start_intake();
+    backspin_outtake();
 	//to matchloader
-	chassis.moveToPoint(50, -56, 1000);
+	chassis.moveToPoint(50, -57, 1000);
 	pros::delay(2000);
-	chassis.setPose(48, -55, 180);
+    //pose reset on matchloader
+	chassis.setPose(48, -55, (imu.get_heading() + 90));
 	
 	chassis.moveToPoint(48, -47, 1000, {.forwards = false});
 	// //turn
 	chassis.turnToHeading(225, 7000);
 	stop_intake();
 	//swerve into alley
-	chassis.moveToPose(60, -32, 180, 2000, {.forwards = false});
+	chassis.moveToPose(61.5, -32, 180, 2000, {.forwards = false});
 	//long move
-	chassis.moveToPoint(60, 39, 7000, {.forwards = false});
+	chassis.moveToPoint(59.9, 39, 7000, {.forwards = false});
 
-	chassis.turnToHeading(270, 1000);
+	chassis.turnToHeading(270, 1200);
 	//drive in line with the goal
-	chassis.moveToPoint(48, 39, 1000);
+	chassis.moveToPoint(47, 39, 1000);
 
-	chassis.turnToHeading(0, 1000);
+	chassis.turnToHeading(0, 1200);
 	//back into goal
-	chassis.moveToPose(48, 24, 0, 1000, {.forwards = false});
+	chassis.moveToPose(47, 23.5, 0, 1000, {.forwards = false});
+    start_intake();
+    backspin_intake();
+    start_intake();
+    pros::delay(1000);
+    hood_pneu.set_value(true);
 	start_outtake();
 	pros::delay(3000);
 	//pose reset on goal
 	stop_outtake();
-	chassis.setPose(48, 31, 0);
+    stop_intake();
+    hood_pneu.set_value(false);
+	chassis.setPose(47, 31, 0);
 	//go to matchloader
-	chassis.moveToPoint(48, 58, 7000);
+	chassis.moveToPoint(47, 61, 7000);
+    start_intake();
 	pros::delay(2000);
 	//back into goal
-	chassis.moveToPose(48, 24, 0, 7000, {.forwards = false});
+	chassis.moveToPose(47, 23.5, 0, 7000, {.forwards = false});
+    start_intake();
+    backspin_intake();
+    pros::delay(200);
+    start_intake();
+    pros::delay(1000);
+    hood_pneu.set_value(true);
+	start_outtake();
 	pros::delay(3000);
 	//pose reset on goal
-	chassis.setPose(47, 31, 0);
+	stop_outtake();
+    stop_intake();
+	//pose reset on goal
+	chassis.setPose(48, 31, (imu.get_heading() + 90));
+    stop_outtake();
+    stop_intake();
+    hood_pneu.set_value(false);
 
 	//drive forward from goal
 	chassis.moveToPoint(48, 40, 7000);
@@ -263,6 +295,15 @@ void opcontrol() {
             hood_pneu.set_value(true);
         } else if (master.get_digital(DIGITAL_UP)) {
             matchload_pneu.set_value(false);
+    
+        }
+
+        if (master.get_digital(DIGITAL_X)) {
+            start_intake();
+            start_outtake();
+        } else if (master.get_digital(DIGITAL_Y)) {
+            stop_outtake();
+            stop_intake();
     
         }
 
