@@ -195,19 +195,20 @@ void autonomous() {
 	chassis.moveToPoint(48, -47, 1000, {.forwards = false});
 	// //turn
 	chassis.turnToHeading(225, 7000);
-	stop_intake();
+	
 	//swerve into alley
 	chassis.moveToPose(61.5, -32, 180, 2000, {.forwards = false});
+    stop_intake();
 	//long move
-	chassis.moveToPoint(59.9, 39, 7000, {.forwards = false});
+	chassis.moveToPoint(60, 39, 7000, {.forwards = false});
 
 	chassis.turnToHeading(270, 1200);
 	//drive in line with the goal
-	chassis.moveToPoint(47, 39, 1000);
+	chassis.moveToPoint(46, 39, 1000);
 
 	chassis.turnToHeading(0, 1200);
 	//back into goal
-	chassis.moveToPose(47, 23.5, 0, 1000, {.forwards = false});
+	chassis.moveToPose(chassis.getPose().x, 23.4, 0, 1000, {.forwards = false});
     start_intake();
     backspin_intake();
     start_intake();
@@ -221,11 +222,11 @@ void autonomous() {
     hood_pneu.set_value(false);
 	chassis.setPose(47, 31, 0);
 	//go to matchloader
-	chassis.moveToPoint(47, 60.2, 7000);
+	chassis.moveToPoint(47, 60.5, 7000);
     start_intake();
 	pros::delay(2500);
 	//back into goal
-	chassis.moveToPose(47, 23.5, 0, 7000, {.forwards = false});
+	chassis.moveToPose(47, 23.4, 0, 7000, {.forwards = false});
     start_intake();
     backspin_intake();
     pros::delay(200);
@@ -238,7 +239,7 @@ void autonomous() {
 	stop_outtake();
     stop_intake();
 	//pose reset on goal
-	chassis.setPose(48, 31, (imu.get_heading() + 90));
+	chassis.setPose(48, 31, (imu.get_heading() + 89));
     stop_outtake();
     stop_intake();
     hood_pneu.set_value(false);
